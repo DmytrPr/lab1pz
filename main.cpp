@@ -9,6 +9,8 @@
 #include <fstream>
 #include <sstream>
 
+int FIELD_SIZE = 19;
+
 struct TwoBitValue {
     uint8_t value : 2;
 };
@@ -22,19 +24,30 @@ auto read_input_file(const std::string& file_path) {
 
     std::vector<std::vector<std::vector<TwoBitValue>>> boards;
 
+    std::string firstLine;
+    std::getline(file, firstLine);
+
+    
+    int numCases = std::stoi(firstLine);
+
+    if(numCases < 1 || numCases > 11) {
+        std::cerr << "Wrong number of test cases " << numCases << std::endl;
+        throw new std::exception();
+    }
+
     while (!file.eof()) {
         std::string line;
         std::getline(file, line);
         
         if(line == "\n" || line == "\r\n" || line.empty()) continue;
 
-        std::vector<std::vector<TwoBitValue>> board(19, std::vector<TwoBitValue>(19));
-        for (int i = 0; i < 19; ++i) {
+        std::vector<std::vector<TwoBitValue>> board(FIELD_SIZE, std::vector<TwoBitValue>(FIELD_SIZE));
+        for (int i = 0; i < FIELD_SIZE; ++i) {
             std::getline(file, line);
             
             if(line == "\n" || line == "\r\n" || line.empty()) continue;
 
-            for (int j = 0; j < 19; ++j) {
+            for (int j = 0; j < FIELD_SIZE; ++j) {
                 board[i][j].value = line[j] - '0';
             }
         }
@@ -91,8 +104,12 @@ void write_result(const std::string& file_path, const std::vector<std::tuple<int
         std::cerr << "Failed to open file\n";
         return;
     }
-    for(const auto& result : results)
-        file << std::get<0>(result) << "\n" << std::get<1>(result) << " " << std::get<2>(result) << "\n\n";
+    for(const auto& result : results){
+        file << std::get<0>(result) << "\n"; 
+        if(!std::get<0>(result)) {
+            file << std::get<1>(result) << " " << std::get<2>(result) << "\n\n";
+        }
+    }
 
     file.close();
 }
